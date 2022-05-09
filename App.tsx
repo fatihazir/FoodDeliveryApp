@@ -10,63 +10,40 @@
 
 import React from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
   View,
 } from 'react-native';
+import { createStackNavigator } from "@react-navigation/stack"
+import { NavigationContainer } from "@react-navigation/native"
+import Restaurant from './screens/Restaurant';
+import OrderDelivery from './screens/OrderDelivery';
+import Tabs from './navigation/Tabs';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-
+const Stack = createStackNavigator()
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-      
-        <Text style={{fontSize:40, fontFamily:"Roboto-Bold"}}>Selam</Text>
-        <Text style={{fontSize:40,}}>Selam</Text>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{
+          headerShown: false
+        }}
+          initialRouteName="MainTab">
+          <Stack.Screen name='MainTab' component={Tabs} />
+          <Stack.Screen name='Restaurant' component={Restaurant} />
+          <Stack.Screen name='OrderDelivery' component={OrderDelivery} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </View>
+
   );
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
+  container: {
+    flex: 1
+  }
 });
 
 export default App;
