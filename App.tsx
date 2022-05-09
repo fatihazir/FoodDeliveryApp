@@ -43,7 +43,8 @@ const App = () => {
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
       
-        <Text style={{fontSize:40, fontFamily:"Montserrat-Regular"}}>Selam</Text>
+        <Text style={{fontSize:40, fontFamily:"Roboto-Bold"}}>Selam</Text>
+        <Text style={{fontSize:40,}}>Selam</Text>
       </ScrollView>
     </SafeAreaView>
   );
