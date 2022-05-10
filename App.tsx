@@ -11,31 +11,32 @@
 import React from 'react';
 import {
   StyleSheet,
-  View,
+  SafeAreaView
 } from 'react-native';
 import { createStackNavigator } from "@react-navigation/stack"
 import { NavigationContainer } from "@react-navigation/native"
 import Restaurant from './screens/Restaurant';
 import OrderDelivery from './screens/OrderDelivery';
 import Tabs from './navigation/Tabs';
+import { Routes } from './constants';
 
 const Stack = createStackNavigator()
 
 const App = () => {
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{
-          headerShown: false
+          headerShown: false,
         }}
-          initialRouteName="MainTab">
-          <Stack.Screen name='MainTab' component={Tabs} />
-          <Stack.Screen name='Restaurant' component={Restaurant} />
-          <Stack.Screen name='OrderDelivery' component={OrderDelivery} />
+          initialRouteName={Routes.MainTab}>
+          <Stack.Screen name={Routes.MainTab} component={Tabs} />
+          <Stack.Screen name={Routes.Restaurant} component={Restaurant} />
+          <Stack.Screen name={Routes.OrderDelivery} component={OrderDelivery} />
         </Stack.Navigator>
       </NavigationContainer>
-    </View>
+    </SafeAreaView>
 
   );
 };

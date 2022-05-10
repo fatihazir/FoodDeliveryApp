@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Image, FlatList } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native'
 import React from 'react'
-import { COLORS, FONTS, icons, images, SIZES } from '../constants'
+import { COLORS, FONTS, icons, images, Routes, SIZES } from '../constants'
+import {useNavigation } from '@react-navigation/native';
 
 //rnfs
 interface CategoryDataModel {
@@ -9,7 +10,7 @@ interface CategoryDataModel {
     icon: any
 }
 
-interface RestaurantDataModel {
+export interface RestaurantDataModel {
     id: number,
     name: string,
     rating: number,
@@ -33,6 +34,14 @@ interface RestaurantDataModel {
         calories: number,
         price: number
     }>
+}
+
+export interface CurrentLocationModel{
+    streetName:string,
+    gps:{
+        latitude:number,
+        longitude:number
+    }
 }
 
 export default function Home() {
@@ -359,7 +368,9 @@ export default function Home() {
     const [categories, setCategories] = React.useState<Array<CategoryDataModel>>(categoryData)
     const [selectedCategory, setSelectedCategory] = React.useState<CategoryDataModel>()
     const [restaurants, setRestaurants] = React.useState<Array<RestaurantDataModel>>(restaurantData)
-    const [currentLocation, setCurrentLocation] = React.useState(initialCurrentLocation)
+    const [currentLocation, setCurrentLocation] = React.useState<CurrentLocationModel>(initialCurrentLocation)
+
+    const navigation = useNavigation();
 
     function onSelectCategory(category: CategoryDataModel) {
         let restaurantList = restaurantData.filter(a => a.categories.includes(category.id))
@@ -396,7 +407,10 @@ export default function Home() {
         let { item } = props
         return (
             <TouchableOpacity style={styles.restaurantsSectionTouchableOpacity}
-                onPress={() => console.log("nav")}>
+                onPress={() => {
+                    //@ts-ignore
+                    navigation.navigate(Routes.Restaurant,{item, currentLocation})
+                }}>
                 <View style={styles.restaurantsSection}>
                     <Image source={item.photo} resizeMode="cover" style={styles.restaurantPhoto} />
                     <View style={[styles.durationSection, styles.shadow]}>
@@ -429,7 +443,7 @@ export default function Home() {
         )
     }
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
 
             <View style={styles.headerSection}>
                 <TouchableOpacity style={styles.headerLeftAndRightPart}>
@@ -475,7 +489,7 @@ export default function Home() {
                 contentContainerStyle={styles.restaurantsContentContainerStyle}
             />
 
-        </SafeAreaView>
+        </View>
     )
 }
 
