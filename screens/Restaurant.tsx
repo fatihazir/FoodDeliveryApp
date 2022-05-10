@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, Image, Animated } from 'react-native'
 import { isIphoneX } from 'react-native-iphone-x-helper'
 import { COLORS, FONTS, icons, images, Routes, SIZES } from '../constants'
-import { CurrentLocationModel, RestaurantDataModel } from './Home'
+import { CurrentLocationModel, MenuDataModel, RestaurantDataModel } from './Home'
 import { useNavigation } from '@react-navigation/native';
 
 interface RestaurantPropsModel {
@@ -14,10 +14,17 @@ interface RestaurantPropsModel {
   }
 }
 
+interface OrderDataModel {
+  orderItem: MenuDataModel,
+  quantity: number,
+  total: number
+}
+
 export default function Restaurant(props: RestaurantPropsModel) {
   const scrollX = new Animated.Value(0)
   const [restaurant, setRestaurant] = React.useState<RestaurantDataModel>()
   const [currentLocation, setCurrentLocation] = React.useState<CurrentLocationModel>()
+  const [orderItems, setOrderItems] = React.useState<Array<OrderDataModel>>([])
 
   const navigation = useNavigation();
 
@@ -27,7 +34,63 @@ export default function Restaurant(props: RestaurantPropsModel) {
     setCurrentLocation(currentLocation)
   }, [])
 
-  function renderDots() {
+  function EditOrder(action: string, menuId: number, price: number) {
+    let tempOrderList = orderItems.slice()
+    let item = tempOrderList.filter(item => item.orderItem.menuId == menuId)
+
+    if (action == "+") {
+      if (item.length > 0) {
+        let newQuantity = item[0].quantity + 1
+        item[0].quantity = newQuantity
+        item[0].total = item[0].quantity * item[0].orderItem.price
+      }
+      else {
+        let newItem: OrderDataModel = {
+          quantity: 1,
+          orderItem: {
+            price: price,
+            menuId: menuId,
+          },
+          total: price
+        }
+        tempOrderList.push(newItem)
+      }
+
+      setOrderItems(tempOrderList)
+    } else {
+      if (item.length > 0) {
+        if (item[0].quantity > 0) {
+          let newQuantity = item[0].quantity - 1
+          item[0].quantity = newQuantity
+          item[0].total = newQuantity * price
+        }
+      }
+      setOrderItems(tempOrderList)
+    }
+  }
+
+  function GetOrderQuantity(menuId: number) {
+    let orderItem = orderItems.filter(item => item.orderItem.menuId == menuId)
+
+    if (orderItem.length > 0) {
+      return orderItem[0].quantity
+    }
+    else {
+      return 0
+    }
+  }
+
+  function GetTotalItemsInCart() {
+    let itemCount = orderItems.reduce((a, b) => a + (b.quantity || 0), 0)
+    return itemCount
+  }
+
+  function GetTotalSumOfCart() {
+    let total = orderItems.reduce((a, b) => a + (b.total || 0), 0)
+    return total
+  }
+
+  function RenderDots() {
 
     const dotPosition = Animated.divide(scrollX, SIZES.width)
 
@@ -122,11 +185,11 @@ export default function Restaurant(props: RestaurantPropsModel) {
               <Image source={item.photo} resizeMode="cover" style={styles.menuPhoto} />
 
               <View style={styles.quantitySection}>
-                <TouchableOpacity style={styles.decreaseButton}>
+                <TouchableOpacity activeOpacity={0.5} style={styles.decreaseButton} onPress={() => EditOrder("-", item.menuId, item.price)}>
                   <Text style={FONTS.body1}>-</Text>
                 </TouchableOpacity>
-                <Text style={[styles.quantityAmount, FONTS.h2]}>5</Text>
-                <TouchableOpacity style={styles.increaseButton}>
+                <Text style={[styles.quantityAmount, FONTS.h2]}>{GetOrderQuantity(item.menuId)}</Text>
+                <TouchableOpacity activeOpacity={0.5} style={styles.increaseButton} onPress={() => EditOrder("+", item.menuId, item.price)}>
                   <Text style={FONTS.body1}>+</Text>
                 </TouchableOpacity>
               </View>
@@ -138,7 +201,7 @@ export default function Restaurant(props: RestaurantPropsModel) {
 
               <View style={styles.calorieSection}>
                 <Image source={icons.fire} style={styles.calorieFirePhoto} />
-                <Text style={styles.calorieText}>{item.calories.toFixed(2)} cal</Text>
+                <Text style={styles.calorieText}>{item.calories?.toFixed(2)} cal</Text>
               </View>
 
             </View>
@@ -146,7 +209,36 @@ export default function Restaurant(props: RestaurantPropsModel) {
         ))}
       </Animated.ScrollView>
 
-      {renderDots()}
+      {RenderDots()}
+
+      <View style={styles.footerSection}>
+        <View style={styles.itemsInChartAndPriceSection}>
+          <Text style={FONTS.h3}>{GetTotalItemsInCart()}</Text>
+          <Text style={FONTS.h3}>${GetTotalSumOfCart()}</Text>
+        </View>
+
+        <View style={styles.addressAndCardSection}>
+          <View style={{ flexDirection: 'row' }}>
+            <Image source={icons.pin} style={styles.footerImage} resizeMode="contain" />
+            <Text style={styles.locationAndCardText}>Location</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row' }}>
+            <Image source={icons.master_card} style={styles.footerImage} resizeMode="contain" />
+            <Text style={styles.locationAndCardText}>8888</Text>
+          </View>
+        </View>
+
+        <View style={styles.footerButtonSection}>
+          <TouchableOpacity style={styles.footerButton}>
+            <Text style={{ color: COLORS.white, ...FONTS.h2 }}>Order</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {isIphoneX() &&
+        <View style={styles.isIphoneXFooter}></View>
+      }
 
     </View>
   )
@@ -263,5 +355,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: SIZES.padding
+  },
+  footerSection: {
+    backgroundColor: COLORS.white,
+    width: SIZES.width,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+  },
+  itemsInChartAndPriceSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: SIZES.padding * 2,
+    paddingHorizontal: SIZES.padding * 3,
+    borderBottomColor: COLORS.lightGray2,
+    borderBottomWidth: 1
+  },
+  addressAndCardSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: SIZES.padding * 2,
+    paddingHorizontal: SIZES.padding * 3,
+  },
+  footerImage: {
+    width: 20,
+    height: 20,
+    tintColor: COLORS.darkgray
+  },
+  locationAndCardText: {
+    marginLeft: SIZES.padding,
+    ...FONTS.h4,
+  },
+  footerButtonSection: {
+    padding: SIZES.padding * 2,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  footerButton: {
+    width: SIZES.width * 0.9,
+    padding: SIZES.padding,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    borderRadius: SIZES.radius
+  },
+  isIphoneXFooter: {
+    position: 'absolute',
+    bottom: -34,
+    left: 0,
+    right: 0,
+    height: 34,
+    backgroundColor: COLORS.white
   }
 })

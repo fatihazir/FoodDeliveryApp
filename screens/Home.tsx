@@ -1,13 +1,22 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native'
 import React from 'react'
 import { COLORS, FONTS, icons, images, Routes, SIZES } from '../constants'
-import {useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 //rnfs
 interface CategoryDataModel {
     id: number,
     name: string,
     icon: any
+}
+
+export interface MenuDataModel {
+    menuId: number,
+    name?: string,
+    photo?: any,
+    description?: string,
+    calories?: number,
+    price: number
 }
 
 export interface RestaurantDataModel {
@@ -26,21 +35,14 @@ export interface RestaurantDataModel {
         avatar: any,
         name: string
     },
-    menu: Array<{
-        menuId: number,
-        name: string,
-        photo: any,
-        description: string,
-        calories: number,
-        price: number
-    }>
+    menu: Array<MenuDataModel>
 }
 
-export interface CurrentLocationModel{
-    streetName:string,
-    gps:{
-        latitude:number,
-        longitude:number
+export interface CurrentLocationModel {
+    streetName: string,
+    gps: {
+        latitude: number,
+        longitude: number
     }
 }
 
@@ -409,7 +411,7 @@ export default function Home() {
             <TouchableOpacity style={styles.restaurantsSectionTouchableOpacity}
                 onPress={() => {
                     //@ts-ignore
-                    navigation.navigate(Routes.Restaurant,{item, currentLocation})
+                    navigation.navigate(Routes.Restaurant, { item, currentLocation })
                 }}>
                 <View style={styles.restaurantsSection}>
                     <Image source={item.photo} resizeMode="cover" style={styles.restaurantPhoto} />
