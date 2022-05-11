@@ -3,10 +3,16 @@ import React from 'react'
 
 export default function OrderDelivery() {
   return (
-    <View>
-      <Text>OrderDelivery</Text>
+    <View style={styles.container}>
+      <View>
+
+      </View>
     </View>
   )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  }
+})

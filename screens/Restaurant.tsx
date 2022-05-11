@@ -230,7 +230,11 @@ export default function Restaurant(props: RestaurantPropsModel) {
         </View>
 
         <View style={styles.footerButtonSection}>
-          <TouchableOpacity style={styles.footerButton}>
+          <TouchableOpacity style={styles.footerButton}
+            onPress={() => {
+              //@ts-ignore
+              navigation.navigate(Routes.OrderDelivery, { restaurant, currentLocation })
+            }}>
             <Text style={{ color: COLORS.white, ...FONTS.h2 }}>Order</Text>
           </TouchableOpacity>
         </View>
